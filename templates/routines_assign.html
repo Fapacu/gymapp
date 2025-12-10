@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Asignar rutina a cliente</h2>
+<p class="lead">Define el período de vigencia.</p>
+
+<form method="post" action="{{ url_for('routines.assign_routine') }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+  <div class="form-row">
+    <div>
+      <label for="cliente_id_search">Cliente</label>
+      <select id="cliente_id_search" name="cliente_id" required style="width: 100%;">
+        <option value="">— Escriba aquí para buscar cliente —</option>
+      </select>
+    </div>
+    <div>
+      <label>Rutina</label>
+      <select name="rutina_id" required>
+        {% for r in rutinas %}<option value="{{ r.ID_rutina }}">{{ r.nombre_rutina }}</option>{% endfor %}
+      </select>
+    </div>
+  </div>
+
+  <div class="form-row">
+    <div>
+      <label>Desde</label>
+      <input type="date" name="desde" required>
+    </div>
+    <div>
+      <label>Hasta</label>
+      <input type="date" name="hasta" required>
+    </div>
+  </div>
+
+  <div class="form-actions">
+    <button type="submit" class="btn">Asignar</button>
+    <a class="btn btn-ghost" href="{{ url_for('routines.list_routines') }}">Cancelar</a>
+  </div>
+</form>
+{% endblock %}
+
+{% block extra_scripts %}
+<style>
+/* 1. CONTENEDOR PRINCIPAL y FONDO DEL CAMPO DE BÚSQUEDA */
+.select2-container--default .select2-selection--single {
+    background-color: var(--bg) !important; 
+    border: 1px solid var(--line) !important;
+    height: 38px !important;
+    padding-top: 5px !important;
+}
+
+/* 2. TEXTO SELECCIONADO Y TEXTO ESCRITO */
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+    color: var(--text) !important;
+    padding-left: 10px !important;
+}
+
+/* 3. FONDO Y TEXTO DEL CAMPO DE ESCRITURA INTERNO (DENTRO DEL DESPLEGABLE) */
+.select2-search--dropdown .select2-search__field {
+    background-color: var(--bg) !important;
+    color: var(--text) !important;
+    border: 1px solid var(--line) !important;
+}
+
+/* 4. PLACHOLDER y TEXTO DE AYUDA (Para que no sea blanco) */
+.select2-search__field::placeholder,
+.select2-container--default .select2-selection--single .select2-selection__placeholder,
+.select2-results__message { 
+    color: var(--muted) !important; 
+    background-color: var(--bg) !important;
+}
+
+/* 5. FONDO DEL MENÚ DESPLEGABLE Y BORDES */
+.select2-container--default .select2-dropdown {
+    background-color: var(--bg) !important; 
+    border: 1px solid var(--line) !important;
+    box-shadow: var(--shadow-2);
+}
+
+/* 6. OPCIONES INDIVIDUALES (Hover/Selección) */
+.select2-container--default .select2-results__option {
+    color: var(--text) !important;
+}
+
+.select2-container--default .select2-results__option--highlighted.select2-results__option--selectable {
+    background-color: var(--primary) !important; 
+    color: var(--bg) !important; 
+}
+
+/* 7. Flecha de Despliegue */
+.select2-container--default .select2-selection--single .select2-selection__arrow b {
+    border-color: var(--text) transparent transparent transparent !important;
+}
+</style>
+<script>
+    $(document).ready(function() {
+        // Inicialización de Select2 para el buscador de clientes
+        $('#cliente_id_search').select2({
+            placeholder: 'Escribe la cédula, nombre o apellido del cliente...',
+            allowClear: true,
+            width: '100%',
+            minimumInputLength: 2, 
+            
+            ajax: {
+                // ❗ RUTA AL BACKEND DE BÚSQUEDA - DEBE ESTAR DEFINIDA EN PYTHON ❗
+                // Usamos la convención de 'routines.search_clients_ajax'
+                url: '{{ url_for("routines.search_clients_ajax") }}', 
+                dataType: 'json',
+                delay: 250, 
+                
+                data: function (params) {
+                    return {
+                        q: params.term, 
+                    };
+                },
+                
+                processResults: function (data) {
+                    return {
+                        results: data.results 
+                    };
+                },
+                cache: true
+            }
+        });
+
+        // Evento para enfocar el campo de búsqueda al hacer clic (Mejora de UX)
+        $('#cliente_id_search').on('select2:open', function() {
+            window.setTimeout(function () {
+                $('.select2-search__field').focus();
+            }, 1);
+        });
+        
+    });
+</script>
+{% endblock %}

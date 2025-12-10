@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Reporte de Asistencia{% endblock %}
+{% block content %}
+<h2>Frecuencia de Asistencia</h2>
+<p class="lead">Reporte de visitas entre {{ desde }} y {{ hasta }}.</p>
+
+<form method="get" class="card" style="margin-bottom:20px;" 
+      action="{{ url_for('reports.attendance_frequency_report') }}">
+    <div class="row">
+        <div>
+            <label>Desde</label>
+            <input type="date" name="desde" value="{{ desde }}">
+        </div>
+        <div>
+            <label>Hasta</label>
+            <input type="date" name="hasta" value="{{ hasta }}">
+        </div>
+    </div>
+    <div class="form-actions">
+                <button class="btn primary" type="submit">Generar Reporte</button>
+
+        <a class="btn" href="{{ url_for('reports.export_data', tipo='attendance', desde=desde, hasta=hasta) }}">
+            ⬇️ Descargar a Excel
+        </a>
+    </div>
+</form>
+
+<div class="card" style="margin-bottom: 20px;">
+    <h3>Visitas Diarias Totales</h3>
+    <table>
+        <thead><tr><th>Día</th><th>Total de Visitas</th></tr></thead>
+        <tbody>
+            {% for f in frecuencia_diaria %}
+            <tr>
+                <td>{{ f.dia }}</td>
+                <td>{{ f.total_visitas }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="2" class="muted">No hay registros de asistencia en este período.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="card">
+    <h3>Ranking de Clientes por Visitas</h3>
+    <table>
+        <thead><tr><th>Cliente</th><th>Cédula</th><th>Total de Visitas</th></tr></thead>
+        <tbody>
+            {% for f in frecuencia_cliente %}
+            <tr>
+                <td>{{ f.nombre }} {{ f.apellido }}</td>
+                <td>{{ f.cedula }}</td>
+                <td>{{ f.total_visitas }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

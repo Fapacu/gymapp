@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Rutinas</h2>
+<p class="lead">Planes personalizados por objetivo.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Nombre</th>
+      <th>Objetivo</th>
+      <th>Creador</th>
+      <th style="width: 35%;">Asignado a (Vigente)</th> <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for r in items %}
+    {% set asignacion = asignaciones_map.get(r.ID_rutina) %} <tr>
+      <td>{{ r.nombre_rutina }}</td>
+      <td>{{ r.objetivo.descripcion if r.objetivo else '' }}</td>
+      <td>{{ r.creador.nombre }} {{ r.creador.apellido }}</td>
+      
+      <td>
+        {% if asignacion %}
+          <span class="badge ok">{{ asignacion.cliente.nombre }} {{ asignacion.cliente.apellido }}</span>
+          <br>
+          <small class="muted">
+            Desde: {{ asignacion.desde.strftime('%Y-%m-%d') }} hasta {{ asignacion.hasta.strftime('%Y-%m-%d') }}
+          </small>
+        {% else %}
+          <span class="badge muted">No asignada</span>
+        {% endif %}
+      </td>
+      
+      <td><a href="{{ url_for('routines.edit_routine', rid=r.ID_rutina) }}">Editar</a></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

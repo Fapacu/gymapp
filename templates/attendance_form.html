@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Registrar Asistencia Manual (Corrección)</h2>
+<p class="lead">Usa esta vista para registrar asistencias en fechas y horas pasadas.</p>
+
+<form method="post" action="{{ url_for('attendance.save_attendance') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    
+    <div>
+        <label for="client_search_rapido">Buscar Cliente (Cédula o Nombre)</label>
+        <select id="client_search_rapido" name="client_id" required style="width: 100%;">
+            <option value="">— Escriba aquí para buscar cliente —</option>
+        </select>
+    </div>
+
+    <button type="submit" name="action_type" value="entry" class="btn primary">
+        ✅ Registrar ENTRADA (Hora Actual)
+    </button>
+
+    <button type="submit" name="action_type" value="exit" class="btn secondary">
+        ❌ Registrar SALIDA (Hora Actual)
+    </button>
+</form>
+
+<hr>
+
+<div class="card">
+    <h3>✍️ Corrección Manual de Salida</h3>
+    <p class="muted">Usa esto si el cliente olvidó marcar la salida en una fecha pasada.</p>
+    
+    <form method="post" action="{{ url_for('attendance.save_attendance') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="action_type" value="manual_complete">
+        
+        <div>
+            <label for="client_search_manual">Buscar Cliente (Cédula o Nombre)</label>
+            <select id="client_search_manual" name="client_id" required style="width: 100%;">
+                <option value="">— Escriba aquí para buscar cliente —</option>
+            </select>
+        </div>
+        
+        <div class="form-row">
+            <div>
+                <label for="fecha_asistencia">Fecha de la Entrada olvidada</label>
+                <input type="date" id="fecha_asistencia" name="fecha_asistencia" required value="{{ today }}">
+            </div>
+            <div>
+                <label for="hora_salida">Hora de Salida Olvidada (Ej: 18:00)</label>
+                <input type="time" id="hora_salida" name="hora_salida" required> 
+            </div>
+        </div>
+        
+        <button type="submit" class="btn warning">Aplicar Salida Manual</button>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    
+    // Función para inicializar Select2 en modo AJAX con enfoque automático
+    function initializeAjaxSelect2(selectorId) {
+        $(selectorId).select2({
+            placeholder: 'Escribe el nombre, apellido o cédula...',
+            allowClear: true,
+            width: '100%',
+            minimumInputLength: 2, // Se recomienda mínimo 2 caracteres para no cargar el servidor
+            
+            ajax: {
+                // RUTA AL BACKEND DE BÚSQUEDA
+                url: '{{ url_for("attendance.search_clients_ajax") }}', 
+                dataType: 'json',
+                delay: 250, 
+                
+                data: function (params) {
+                    return {
+                        q: params.term, 
+                    };
+                },
+                
+                processResults: function (data) {
+                    return {
+                        results: data.results 
+                    };
+                },
+                cache: true
+            }
+        });
+
+        // Evento para enfocar el campo de búsqueda al hacer clic (Escribir inmediatamente)
+        $(selectorId).on('select2:open', function() {
+            window.setTimeout(function () {
+                $('.select2-search__field').focus();
+            }, 1);
+        });
+    }
+
+    $(document).ready(function() {
+        // Inicializar ambos selectores
+        initializeAjaxSelect2('#client_search_rapido');
+        initializeAjaxSelect2('#client_search_manual');
+    });
+</script>
+{% endblock %}

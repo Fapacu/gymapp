@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Configuración de Rutinas{% endblock %}
+{% block content %}
+<h2>🛠️ Catálogo de Rutinas</h2>
+<p class="lead">Crea, edita y gestiona los Grupos Musculares, Tipos de Ejercicio y Objetivos del sistema.</p>
+
+<a class="btn btn-ghost" href="{{ url_for('routines.list_routines') }}">← Volver a Rutinas</a>
+
+<div class="grid cols-3" style="margin-top: 30px;">
+    
+    <div class="card">
+        <h3>🎯 Objetivos de Entrenamiento</h3>
+        <ul>
+            {% for o in objetivos %}
+            <li>{{ o.descripcion }}</li>
+            {% endfor %}
+        </ul>
+        <div class="hr"></div>
+        <form method="post" action="{{ url_for('routines.save_item') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="tipo" value="objetivo">
+            <label>Nuevo Objetivo</label>
+            <input name="nombre" placeholder="Ej: Resistencia Muscular" required>
+            <button type="submit" class="btn primary" style="width: 100%; margin-top: 10px;">Añadir</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <h3>💪 Grupos Musculares</h3>
+        <ul>
+            {% for m in musculos %}
+            <li>{{ m.nombre }}</li>
+            {% endfor %}
+        </ul>
+        <div class="hr"></div>
+        <form method="post" action="{{ url_for('routines.save_item') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="tipo" value="musculo">
+            <label>Nuevo Músculo</label>
+            <input name="nombre" placeholder="Ej: Deltoides Posterior" required>
+            <button type="submit" class="btn primary" style="width: 100%; margin-top: 10px;">Añadir</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <h3>🏷️ Tipos de Ejercicio</h3>
+        <ul>
+            {% for t in tipos_ejercicio %}
+            <li>{{ t.nombre }}</li>
+            {% endfor %}
+        </ul>
+        <div class="hr"></div>
+        <form method="post" action="{{ url_for('routines.save_item') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="tipo" value="ejercicio">
+            <label>Nuevo Tipo</label>
+            <input name="nombre" placeholder="Ej: Calistenia, Máquina de Cable" required>
+            <button type="submit" class="btn primary" style="width: 100%; margin-top: 10px;">Añadir</button>
+        </form>
+    </div>
+    
+</div>
+{% endblock %}

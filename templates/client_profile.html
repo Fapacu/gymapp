@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Perfil de {{ client.nombre }} {{ client.apellido }}</h2>
+
+<p class="lead">
+  Cédula: <b>{{ client.cedula }}</b> · 
+  Teléfono: {{ client.telefono or 'N/A' }} ·
+  Estado: 
+  <span class="pill {{ 'ok' if estado=='al día' else 'warn' if estado=='por vencer' else 'bad' }}">
+    {{ estado }}
+  </span>
+</p>
+
+<h3 style="margin-top:25px;">Historial de Suscripciones (Mensualidades)</h3>
+<div class="card" style="padding: 15px;">
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 25%;">Tipo</th>
+        <th style="width: 15%;">Desde</th>
+        <th style="width: 15%;">Vence</th>
+        <th style="width: 15%;">Estado</th>
+        <th style="width: 30%;">Observaciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for s in suscripciones %}
+      <tr>
+        <td>{{ s.tipo.nombre }}</td>
+        <td>{{ s.fecha_inicio }}</td>
+        <td>{{ s.fecha_vencimiento }}</td>
+        <td><span class="badge {{ 'ok' if s.estado=='Activa' else 'bad' }}">{{ s.estado }}</span></td>
+        <td>{{ s.observaciones or '-' }}</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="5" class="muted">No se han registrado suscripciones para este cliente.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+
+<div class="card" style="margin-top: 30px;">
+    <h3 style="margin-top:25px;">Historial de Pagos</h3>
+
+    {% if historial_pagos %}
+    
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Fecha Pago</th>
+                <th>Monto</th>
+                <th>Tipo Suscripción</th>
+                <th>Método</th>
+                <th>Periodo de Validez</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for pago in historial_pagos %}
+            <tr>
+                <td>{{ pago.fecha }}</td>
+                <td class="text-right">{{ pago.monto_formateado }}</td>
+                <td>{{ pago.suscripcion_tipo }}</td>
+                <td>{{ pago.metodo }}</td>
+                <td>{{ pago.periodo_inicio }} al {{ pago.periodo_fin }}</td>
+                <td>
+                    <a href="{{ url_for('payments.receipt', detalle_id=pago.detalle_id) }}" 
+                       class="btn btn-secondary btn-small" target="_blank">
+                        Recibo (PDF)
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    {% else %}
+    
+    <p class="muted">Aún no hay pagos registrados o suscripciones activas para este cliente.</p>
+    
+    {% endif %}
+
+</div>
+
+
+<h3 style="margin-top:25px;">Historial de Asistencias</h3>
+<div class="card" style="padding: 15px;">
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 15%;">ID</th>
+        <th style="width: 30%;">Entrada</th>
+        <th style="width: 30%;">Salida</th>
+        <th style="width: 25%;">Observaciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for a in asistencias %}
+      <tr>
+        <td>{{ a.ID_asistencia }}</td>
+        <td>{{ a.hora_entrada.strftime('%Y-%m-%d %H:%M') if a.hora_entrada else '-' }}</td>
+        <td>{{ a.hora_salida.strftime('%Y-%m-%d %H:%M') if a.hora_salida else '-' }}</td>
+        <td>{{ a.observaciones or '-' }}</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="4" class="muted">No hay registros de asistencia.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+
+<h3 style="margin-top:25px;">Rutinas Asignadas</h3>
+<div class="card" style="padding: 15px;">
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 25%;">Rutina</th>
+        <th style="width: 15%;">Vigencia</th>
+        <th style="width: 15%;">Asignada Por</th>
+        <th style="width: 25%;">Estado</th>
+        <th style="width: 20%;">Acción</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in rutinas %}
+      <tr>
+        <td>{{ r.rutina.nombre_rutina }}</td>
+        <td>{{ r.desde }} hasta {{ r.hasta }}</td>
+        <td>{{ r.asignador.nombre }}</td>
+        <td><span class="badge {{ 'ok' if r.vigente else 'off' }}">{{ 'Vigente' if r.vigente else 'Antigua' }}</span></td>
+        <td>
+          <a href="{{ url_for('routines.routine_pdf', asign_id=r.idrutina_asignacion) }}" class="linklike">Descargar PDF</a>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="5" class="muted">No hay rutinas asignadas.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}

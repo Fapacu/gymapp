@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Asistencias</h2>
+<p class="lead">Consulta y filtra el historial de entradas y salidas.</p>
+
+<form method="get" class="card" style="margin-bottom:12px;" action="{{ url_for('attendance.list_attendance') }}">
+    <div class="form-row">
+        <div>
+            <label>Cliente</label>
+            <input name="cliente" placeholder="Nombre/Apellido/Cédula" value="{{ cliente or '' }}">
+        </div>
+        <div>
+            <label>Desde</label>
+            <input type="date" name="desde" value="{{ desde or '' }}">
+        </div>
+    </div>
+    <div class="form-row">
+        <div>
+            <label>Hasta</label>
+            <input type="date" name="hasta" value="{{ hasta or '' }}">
+        </div>
+        <div class="form-actions">
+            <button class="btn primary" type="submit">Filtrar</button>
+            <a class="btn" href="{{ url_for('attendance.new_attendance') }}">Registrar asistencia</a>
+        </div>
+    </div>
+</form>
+
+{% if not asistencias_agrupadas %}
+    <p class="muted">No se encontraron asistencias en el rango seleccionado.</p>
+{% endif %}
+
+{% for fecha, asistencias_del_dia in asistencias_agrupadas.items() %}
+    
+    <div class="card" style="margin-top: 20px; padding: 15px;">
+        <h3>📅 Asistencias del Día: {{ fecha }}</h3> 
+    
+        <table class="table">
+            <thead>
+                <tr>
+                    <th style="width: 20%;">Nombre</th>
+                    <th style="width: 15%;">Cédula</th>
+                    <th style="width: 25%;">Hora Entrada (Completa)</th> <th style="width: 20%;">Hora Salida</th>
+                    <th style="width: 20%;">Observaciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for a in asistencias_del_dia %}
+                <tr>
+                    <td>{{ a.cliente.nombre }} {{ a.cliente.apellido }}</td>
+                    <td>{{ a.cliente.cedula }}</td>
+                    <td>{{ a.hora_entrada.strftime('%Y-%m-%d %H:%M:%S') if a.hora_entrada else '-' }}</td> 
+                    <td>{{ a.hora_salida.strftime('%H:%M:%S') if a.hora_salida else '-' }}</td>
+                    <td>{{ a.observaciones or '-' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+{% endfor %}
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Funcionarios</h2>
+<a class="btn" href="{{ url_for('auth.users_new') }}">Nuevo funcionario</a>
+<table>
+  <thead><tr><th>Usuario</th><th>Nombre</th><th>Rol</th><th>Creado</th></tr></thead>
+  <tbody>
+    {% for u in users %}
+      <tr>
+        <td>{{u.usuario}}</td>
+        <td>{{u.nombre}} {{u.apellido}}</td>
+        <td>{{u.rol.nombre_rol}}</td>
+        <td>{{u.fecha_creacion.strftime('%Y-%m-%d')}}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

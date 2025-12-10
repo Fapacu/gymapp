@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Reportes Centralizados</h2>
+<p class="lead">Resumen operativo del gimnasio.</p>
+
+<div class="kpis">
+  <div class="kpi"><div class="k">Clientes</div><div class="v">{{ total_clientes }}</div></div>
+  <div class="kpi"><div class="k">Pagos (total)</div><div class="v">{{ '%.0f'|format(total_pagos) }}</div></div>
+  <div class="kpi"><div class="k">Asistencias</div><div class="v">{{ total_asistencias }}</div></div>
+  <div class="kpi"><div class="k">Rutinas</div><div class="v">{{ total_rutinas }}</div></div>
+</div>
+
+<div class="hr"></div>
+
+<h3>Clientes morosos</h3>
+<ul>
+  {% for c in morosos %}
+    <li>{{ c.cedula }} - {{ c.nombre }} {{ c.apellido }}</li>
+  {% else %}
+    <li>Sin morosos</li>
+  {% endfor %}
+</ul>
+
+<h3>Exportaciones</h3>
+<p>
+  <a href="{{ url_for('reports.export_data', tipo='clients') }}">Clientes (Excel)</a> ·
+  <a href="{{ url_for('reports.export_data', tipo='payments') }}">Pagos (Excel)</a> ·
+  <a href="{{ url_for('reports.export_data', tipo='attendance') }}">Asistencias (Excel)</a> ·
+  <a href="{{ url_for('reports.export_data', tipo='routines') }}">Rutinas (Excel)</a> ·
+  <a href="{{ url_for('reports.export_data', tipo='suscripciones') }}">Suscripciones (Excel)</a>
+</p>
+{% endblock %}

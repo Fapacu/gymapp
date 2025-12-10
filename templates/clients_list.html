@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Clientes</h2>
+<p class="lead">Gestiona personas, estados y exporta la base.</p>
+
+<form method="get" class="card" style="margin-bottom:12px;">
+  <div class="form-row">
+    <div>
+      <label>Búsqueda</label>
+      <input name="q" placeholder="Nombre, Apellido o Cédula" value="{{q}}">
+    </div>
+    <div class="filtro-estado">
+      <label>Estado general</label>
+      <select name="estado">
+        <option value="">— Todos —</option>
+        <option value="al día" {{ 'selected' if estado=='al día' else '' }}>Al Día</option>
+        <option value="en mora" {{ 'selected' if estado=='en mora' else '' }}>En Mora</option>
+      </select>
+    </div>
+  </div>
+  <div class="form-actions">
+    <button class="btn" type="submit">Buscar</button>
+    <a class="btn btn-ghost" href="{{ url_for('clients.export_clients') }}">Exportar Excel</a>
+    <a class="btn" href="{{ url_for('clients.new_client') }}">Nuevo</a>
+  </div>
+</form>
+
+<table>
+  <thead><tr><th>Cedula</th><th>Nombre</th><th>Estado</th><th>Acciones</th></tr></thead>
+  <tbody>
+    {% for c in clients %}
+    <tr>
+      <td>{{ c.cedula }}</td>
+      <td>{{ c.nombre }} {{ c.apellido }}</td>
+      <td>
+        {% set st = estados[c.ID_cliente] %}
+        <span class="pill {{ 'ok' if st=='al día' else 'warn' if st=='por vencer' else 'bad' }}">{{ st }}</span>
+      </td>
+      <td class="actions">
+        <a href="{{ url_for('clients.edit_client', cid=c.ID_cliente) }}">Editar</a> ·
+        <a href="{{ url_for('clients.client_profile', cid=c.ID_cliente) }}">Perfil</a> ·
+        <form style="display:inline" method="post" action="{{ url_for('clients.toggle_client', cid=c.ID_cliente) }}" onsubmit="return confirm('¿Confirmar cambio de estado?')">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="linklike">{{ 'Desactivar' if c.activo else 'Activar' }}</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

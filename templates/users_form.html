@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>{{ 'Editar' if user else 'Nuevo' }} funcionario</h2>
+<form method="post" action="{{ url_for('auth.users_save') }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  {% if user %}<input type="hidden" name="id" value="{{user.ID_funcionario}}">{% endif %}
+  <label>Usuario</label><input name="usuario" value="{{ user.usuario if user else '' }}" required>
+  <label>Nombre</label><input name="nombre" value="{{ user.nombre if user else '' }}" required>
+  <label>Apellido</label><input name="apellido" value="{{ user.apellido if user else '' }}" required>
+  <label>Cédula</label><input name="cedula" value="{{ user.cedula if user else '' }}" required>
+  <label>Teléfono</label><input name="telefono" value="{{ user.telefono if user else '' }}">
+  <label>Email</label><input name="email" value="{{ user.email if user else '' }}">
+  <label>Domicilio</label><input name="domicilio" value="{{ user.domicilio if user else '' }}">
+  <label>Rol</label>
+  <select name="ID_rol">
+    {% for r in roles %}
+      <option value="{{ r.ID_rol }}">{{ r.nombre_rol }}</option>
+    {% endfor %}
+  </select>
+  <label>Contraseña {{ '(dejar vacía si no cambia)' if user else '' }}</label>
+  <input type="password" name="password" {{ 'required' if not user else '' }}>
+  <button type="submit">Guardar</button>
+</form>
+{% endblock %}

@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Inicio (Dashboard)</h1>
+
+<p class="lead">Usa el menú lateral para navegar por los módulos.</p>
+
+<div class="dashboard-widgets">
+    <div class="widget kpis">
+        <h3>👥 Clientes</h3>
+        <p class="data-value">{{ total_clientes }}</p>
+    </div>
+
+    <div class="widget kpis">
+        <h3>🏋️ Rutinas</h3>
+        <p class="data-value">{{ total_rutinas }}</p>
+    </div>
+
+    <div class="widget kpis">
+        <h3>✅ Asistencias</h3>
+        <p class="data-value">{{ total_asistencias }}</p>
+    </div>
+
+    <div class="widget kpis">
+        <h3>💰 Ingresos Acumulados</h3>
+        <p class="data-value">{{ total_ingresos }}</p>
+    </div>
+</div>
+<hr>
+
+<div class="card">
+    <h2>Mi Perfil</h2>
+    
+    {% if current_user.rol and current_user.rol.nombre_rol == 'ADMIN' %}
+        
+        <h3>Cambiar Contraseña</h3>
+        <form method="post" action="{{ url_for('auth.change_password') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            
+            <div>
+                <label for="current_password">Contraseña Actual</label>
+                <input type="password" id="current_password" name="current_password" required>
+            </div>
+            
+            <div>
+                <label for="new_password">Nueva Contraseña</label>
+                <input type="password" id="new_password" name="new_password" required>
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="btn primary">Actualizar Contraseña</button>
+            </div>
+        </form>
+    
+    {% else %}
+        
+        <p class="muted">La gestión de contraseñas para tu rol es manejada por el Administrador.</p>
+        
+    {% endif %}
+
+</div>
+
+{% endblock %}

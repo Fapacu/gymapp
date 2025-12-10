@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Log de Auditoría{% endblock %}
+{% block content %}
+<h2>📋 Log de Auditoría</h2>
+<p class="lead">Registro de las últimas 100 acciones críticas del sistema.</p>
+
+<form method="get" class="card" style="margin-bottom:20px;" action="{{ url_for('reports.auditoria_log') }}">
+    <div class="form-row">
+        <div>
+            <label>Usuario / Creador</label>
+            <input type="text" name="usuario" placeholder="Nombre o Usuario" value="{{ f_usuario or '' }}">
+        </div>
+        <div>
+            <label>Tabla Afectada</label>
+            <select name="tabla">
+                <option value="">— Todas las Tablas —</option>
+                {% for tabla in tablas_unicas %}
+                <option value="{{ tabla }}" {{ 'selected' if f_tabla == tabla else '' }}>{{ tabla }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+    <div class="form-row">
+        <div>
+            <label>Desde Fecha</label>
+            <input type="date" name="desde" value="{{ f_desde or '' }}">
+        </div>
+        <div class="form-actions">
+            <button class="btn primary" type="submit">Buscar Historial</button>
+            <a class="btn btn-ghost" 
+           href="{{ url_for('reports.export_auditoria', usuario=f_usuario, tabla=f_tabla, desde=f_desde) }}">
+            ⬇️ Descargar a Excel
+        </a>
+        </div>
+    </div>
+</form>
+
+<div class="card" style="padding: 10px;">
+    <table class="table">
+        <thead>
+            <tr>
+                <th style="width: 15%;">Fecha</th>
+                <th style="width: 20%;">Funcionario</th>
+                <th style="width: 15%;">Tipo Acción</th>
+                <th style="width: 15%;">Tabla Afectada</th>
+                <th style="width: 35%;">Descripción</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for log in logs %}
+            <tr>
+                <td>{{ log.fecha_accion.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                <td>{{ log.funcionario.nombre }} ({{ log.funcionario.usuario }})</td>
+                <td>
+                    <span class="status ok">{{ log.tipo_accion.nombre_accion }}</span> 
+                </td>
+                <td>{{ log.tabla_afectada }}</td>
+                <td>{{ log.descripcion }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5" class="muted">No se encontraron registros de auditoría.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Pagos</h2>
+<p class="lead">Consulta y descarga comprobantes.</p>
+
+<form method="get" class="card" style="margin-bottom:12px;">
+  <div class="form-row">
+    <div>
+      <label>Cliente</label>
+      <input name="cliente" placeholder="Nombre/Apellido/Cédula" value="{{ request.args.get('cliente','') }}">
+    </div>
+    <div>
+      <label>Desde</label>
+      <input type="date" name="desde" value="{{ request.args.get('desde','') }}">
+    </div>
+  </div>
+  <div class="form-row">
+    <div>
+      <label>Hasta</label>
+      <input type="date" name="hasta" value="{{ request.args.get('hasta','') }}">
+    </div>
+    <div style="display:flex; align-items:flex-end; gap:8px;">
+      <button class="btn" type="submit">Filtrar</button>
+      <a class="btn btn-ghost" href="{{ url_for('payments.new_payment') }}">Registrar pago</a>
+      
+      <a class="btn danger" href="{{ url_for('clients.list_clients', estado='en mora') }}">Clientes Morosos</a>
+      
+      <a class="btn" href="{{ url_for('reports.central') }}">Ver Reportes</a>
+    </div>
+    </div>
+</form>
+
+<table>
+  <thead><tr><th>Cliente</th><th>Importe</th><th>Método</th><th>Fecha</th><th>Comprobante</th></tr></thead>
+  <tbody>
+    {% for p in pagos %}
+    <tr>
+      <td>{{ p.suscripcion.cliente.nombre }} {{ p.suscripcion.cliente.apellido }}</td>
+      <td>{{ '%.0f'|format(p.monto) }}</td>
+      <td>{{ p.metodo_pago }}</td>
+      <td>{{ p.fecha_pago.strftime('%Y-%m-%d %H:%M') }}</td>
+      <td><a href="{{ url_for('payments.receipt', detalle_id=p.ID_detalle_pago) }}">PDF</a></td>
+    </tr>
+    {% else %}
+    <tr><td colspan="5" class="muted">No se encontraron pagos con los filtros aplicados.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}

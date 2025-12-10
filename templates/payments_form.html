@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Registrar pago / Crear suscripción</h2>
+<p class="lead">Genera la suscripción y el comprobante automáticamente.</p>
+
+<form method="post" action="{{ url_for('payments.save_payment') }}">
+
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <div class="filtro-estado">
+        <div>
+            <label for="client_id">Cliente</label>
+            <select id="client_id" name="client_id" required>
+                <option value="">-- Seleccionar Cliente --</option>
+                {% for c in clients %}
+                <option value="{{ c.ID_cliente }}">
+                    {{ c.apellido }}, {{ c.nombre }} (C.I: {{ c.cedula or 'N/A' }})
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label for="fecha_inicio">Fecha de inicio</label>
+            <input type="date" id="fecha_inicio" name="fecha_inicio" required value="{{ today or '' }}"> 
+        </div>
+    </div>
+    <div class="filtro-estado">
+        <label for="tipo_id">Tipo de Suscripción</label>
+        <select id="tipo_id" name="tipo_id" required onchange="toggleCustomFields()">
+            <option value="">-- Seleccionar --</option>
+            {% for t in tipos %}
+            <option value="{{ t.ID_tipo_suscripcion }}|{{ t.periodo_dias }}" 
+                    data-dias="{{ t.periodo_dias }}">
+                {{ t.nombre }} ({{ t.precio_formateado }})
+            </option>
+            {% endfor %}
+            
+            <option value="CUSTOM">** Personalizada (Precio y Días manual) **</option>
+        </select>
+    </div>
+    <div id="custom_fields" style="display:none; border: 1px solid #ccc; padding: 15px; margin-top: 10px; margin-bottom: 15px;">
+        <h3>Datos de Suscripción Personalizada</h3>
+        
+        <div>
+            <label for="precio_custom">Precio Total</label>
+            <input type="text" id="precio_custom" name="precio_custom" placeholder="Ej: 150000.00">
+        </div>
+        
+        <div>
+            <label for="dias_custom">Días de Validez</label>
+            <input type="number" id="dias_custom" name="dias_custom" placeholder="Ej: 45" min="1">
+        </div>
+    </div>
+    
+    <div class="form-row">
+        <div>
+            <label for="metodo_pago">Método de pago</label>
+            <select id="metodo_pago" name="metodo_pago" required>
+                <option>Efectivo</option>
+                <option>Tarjeta</option>
+                <option>Transferencia</option>
+                <option>Otro</option>
+            </select>
+        </div>
+    </div>
+    
+    <div class="form-actions">
+        <button type="submit" class="btn primary">Guardar y Generar Comprobante</button>
+        <a class="btn btn-ghost" href="{{ url_for('payments.list_payments') }}">Cancelar</a>
+    </div>
+</form>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        toggleCustomFields();
+    });
+
+    function toggleCustomFields() {
+        const select = document.getElementById('tipo_id');
+        const customFields = document.getElementById('custom_fields');
+        const precioInput = document.getElementById('precio_custom');
+        const diasInput = document.getElementById('dias_custom');
+
+        const isCustom = select.value === 'CUSTOM';
+        
+        if (isCustom) {
+            customFields.style.display = 'block';
+            precioInput.setAttribute('required', 'required');
+            diasInput.setAttribute('required', 'required');
+            
+        } else {
+            customFields.style.display = 'none';
+            precioInput.removeAttribute('required');
+            diasInput.removeAttribute('required');
+            
+            // Limpia los valores de los campos personalizados cuando se ocultan
+            precioInput.value = '';
+            diasInput.value = '';
+        }
+    }
+</script>
+
+{% endblock %}

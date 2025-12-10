@@ -1,0 +1,295 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>🏋️ {{ 'Editar' if item else 'Nueva' }} Rutina</h2>
+<p class="lead">Define objetivo, grupos focales y estructura del plan de ejercicios.</p>
+
+<form method="post" action="{{ url_for('routines.save_routine') }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  {% if item %}<input type="hidden" name="id" value="{{ item.ID_rutina }}">{% endif %}
+
+  <div class="card" style="margin-bottom: 20px;">
+    <h3>Información General</h3>
+    <div class="form-row">
+      <div>
+        <label>Nombre de la Rutina</label>
+        <input name="nombre_rutina" value="{{ item.nombre_rutina if item else '' }}" required>
+      </div>
+      <div>
+        <label>Objetivo Principal</label>
+        <select name="idobjetivo" required>
+          {% for o in objetivos %}
+            <option value="{{ o.idobjetivo }}" {{ 'selected' if item and item.idobjetivo==o.idobjetivo else '' }}>{{ o.descripcion }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+    
+    <label>Observaciones (públicas)</label>
+    <input name="observaciones" value="{{ item.observaciones if item else '' }}">
+
+    <label>Descripción Corta / Resumen (Para el PDF)</label>
+    <textarea name="descripcion_corta" rows="3">{{ item.descripcion if item else '' }}</textarea>
+  </div>
+
+
+  <div class="card" style="margin-bottom: 20px;">
+    <h3>
+        💪 Grupos Musculares
+        {% if current_user.rol and current_user.rol.nombre_rol == 'ADMIN' %}
+        <a class="btn btn-ghost" href="{{ url_for('routines.config_rutinas') }}" 
+           style="padding: 6px 12px; font-size: 14px; margin-left: 20px;">
+          ⚙️ Gestionar Catálogo
+        </a>
+        {% endif %}
+    </h3>
+    
+    <p class="muted small">Selecciona los principales grupos de trabajo. Usa un clic para activar.</p>
+    <div style="display:flex; flex-wrap:wrap; gap:10px;">
+      {% for musculo in musculos %}
+        {% set is_selected = musculo.idgrupo_muscular in musculos_seleccionados_ids if item else false %}
+        
+        <label class="musculo-tag {{ 'musculo-active' if is_selected else '' }}" 
+               data-musculo-id="{{ musculo.idgrupo_muscular }}">
+          <input type="checkbox" 
+                 name="musculos" 
+                 value="{{ musculo.idgrupo_muscular }}" 
+                 {{ 'checked' if is_selected else '' }}>
+          {{ musculo.nombre }}
+        </label>
+      {% endfor %}
+    </div>
+  </div>
+
+
+  <div class="card" style="margin-top: 20px;">
+    <h3>📋 Detalle de Ejercicios</h3>
+    <p class="muted small">Configura series, repeticiones y descanso para cada ejercicio.</p>
+
+    <table id="detalle-table" class="table">
+        <thead>
+            <tr>
+                <th style="width:5%;">#</th>
+                <th style="width:20%;">Grupo Muscular</th>
+                <th style="width:15%;">Tipo Ejercicio</th>
+                <th style="width:25%;">Ejercicio</th>
+                <th style="width:10%;">Series</th>
+                <th style="width:10%;">Reps</th>
+                <th style="width:5%;">Desc. (s)</th>
+                <th style="width:5%;"></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if item and item.detalles %}
+              {% for detalle in item.detalles %}
+              <tr>
+                  <td><span class="row-order">{{ loop.index }}</span></td>
+                  <td>
+                    <select name="grupo_muscular_id" required>
+                        {% set current_gm = None %}
+                        {% if detalle and detalle.ID_grupo_muscular %}
+                            {% for gm in musculos %}
+                                {% if detalle.ID_grupo_muscular == gm.idgrupo_muscular %}
+                                    {% set current_gm = gm %}
+                                    <option value="{{ gm.idgrupo_muscular }}" selected>{{ gm.nombre }}</option>
+                                    {{ loop.break }}  {% endif %}
+                            {% endfor %}
+                        {% endif %}
+
+                        {% for gm in musculos %}
+                            {% if gm != current_gm %}
+                                <option value="{{ gm.idgrupo_muscular }}">{{ gm.nombre }}</option>
+                            {% endif %}
+                        {% endfor %}
+
+                    </select>
+                </td>
+                  <td>
+                    <select name="tipo_ejercicio_id" required>
+                        {% for te in tipos_ejercicios %}
+                            <option value="{{ te.ID_tipo_ejercicio }}"
+                                {{ 'selected' if detalle.ID_tipo_ejercicio == te.ID_tipo_ejercicio else '' }}>
+                                {{ te.nombre }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </td>
+                  <td><input type="text" name="ejercicio_nombre" value="{{ detalle.nombre_ejercicio }}" required></td>
+                  <td><input type="number" name="series" value="{{ detalle.series }}" min="1"></td>
+                  <td><input type="text" name="repeticiones" value="{{ detalle.repeticiones }}"></td>
+                  <td><input type="number" name="descanso_seg" value="{{ detalle.descanso_seg }}" min="0"></td>
+                  <td><button type="button" class="linklike danger" onclick="remove_row(this)">Eliminar</button></td>
+              </tr>
+              {% endfor %}
+            {% endif %}
+        </tbody>
+    </table>
+    
+    <div class="form-actions" style="margin-top: 15px; justify-content: flex-start;">
+        <button type="button" class="btn primary" onclick="add_detail_row()">➕ Añadir Ejercicio</button>
+    </div>
+  </div>
+
+
+  <div class="form-actions" style="margin-top: 20px;">
+    <button type="submit" class="btn primary">Guardar Rutina</button>
+    <a class="btn btn-ghost" href="{{ url_for('routines.list_routines') }}">Cancelar</a>
+  </div>
+</form>
+
+<template id="detail-row-template">
+    <tr>
+        <td><span class="row-order"></span></td>
+        <td>
+            <select name="grupo_muscular_id" required>
+                {% for gm in musculos %}
+                    <option value="{{ gm.idgrupo_muscular }}">{{ gm.nombre }}</option>
+                {% endfor %}
+            </select>
+        </td>
+        <td>
+            <select name="tipo_ejercicio_id" required>
+                {% for te in tipos_ejercicios %}
+                    <option value="{{ te.ID_tipo_ejercicio }}">{{ te.nombre }}</option>
+                {% endfor %}
+            </select>
+        </td>
+        <td><input type="text" name="ejercicio_nombre" required></td>
+        <td><input type="number" name="series" value="3" min="1"></td>
+        <td><input type="text" name="repeticiones" value="10-12"></td>
+        <td><input type="number" name="descanso_seg" value="60" min="0"></td>
+        <td><button type="button" class="linklike danger" onclick="remove_row(this)">Eliminar</button></td>
+    </tr>
+</template>
+
+<style>
+    /* Estilos para los botones de Grupos Musculares */
+    .musculo-tag {
+        position: relative;
+        padding: 8px 12px;
+        border-radius: 999px;
+        cursor: pointer;
+        border: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--text);
+        font-weight: 600;
+        transition: all 0.15s ease;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+    .musculo-tag:hover {
+        background: rgba(255, 255, 255, 0.1);
+    }
+    .musculo-tag input[type="checkbox"] {
+        /* Ocultar el checkbox nativo */
+        appearance: none;
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        margin: 0;
+        cursor: pointer;
+        opacity: 0;
+    }
+    /* Estilo para el estado activo/seleccionado (usando color primary/verde) */
+    .musculo-tag.musculo-active {
+        background: var(--primary); 
+        color: var(--bg); 
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px rgba(25, 195, 125, .15);
+    }
+    /* Asegurar que la tabla ocupe todo el ancho */
+    #detalle-table input, #detalle-table select {
+        padding: 6px 8px;
+        border-radius: 8px;
+        font-size: 13px;
+        /* Asegurar que los selectores y campos se adapten */
+        width: 95%; 
+    }
+    #detalle-table td {
+        vertical-align: middle;
+        padding: 8px 4px;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Inicializar números de fila al cargar la página
+        updateRowNumbers();
+        
+        // Manejador de eventos para los checkboxes de músculos
+        const musculoTags = document.querySelectorAll('.musculo-tag');
+        musculoTags.forEach(tag => {
+            const checkbox = tag.querySelector('input[type="checkbox"]');
+            
+            // Togglear la clase al hacer clic
+            tag.addEventListener('click', function(e) {
+                // Si el clic no fue directamente en el checkbox, lo toggleamos
+                if (e.target !== checkbox) {
+                    checkbox.checked = !checkbox.checked;
+                }
+                this.classList.toggle('musculo-active', checkbox.checked);
+            });
+            
+            // Inicializar la clase activa (para el modo edición)
+            tag.classList.toggle('musculo-active', checkbox.checked);
+        });
+    });
+    
+    // Función para encontrar el ID del último músculo marcado en la parte superior
+    function get_last_selected_muscle_id() {
+        // Buscar todos los checkboxes que están marcados (checked)
+        const activeCheckboxes = document.querySelectorAll('.musculo-tag input[type="checkbox"]:checked');
+        
+        if (activeCheckboxes.length > 0) {
+            // Devolver el valor (ID del músculo) del ÚLTIMO checkbox marcado
+            return activeCheckboxes[activeCheckboxes.length - 1].value;
+        }
+        return null; // No hay ninguno seleccionado
+    }
+
+    function updateRowNumbers() {
+        const rows = document.querySelectorAll('#detalle-table tbody tr');
+        rows.forEach((row, index) => {
+            const orderSpan = row.querySelector('.row-order');
+            if (orderSpan) {
+                orderSpan.textContent = index + 1;
+            }
+        });
+    }
+
+    function add_detail_row() {
+        const template = document.getElementById('detail-row-template');
+        const tbody = document.querySelector('#detalle-table tbody');
+        
+        // 1. Obtener el ID del último músculo seleccionado
+        const lastSelectedMuscleId = get_last_selected_muscle_id(); 
+
+        // Clonar el contenido de la plantilla (la fila nueva)
+        const clone = template.content.cloneNode(true);
+        
+        // 2. Si se encontró un músculo seleccionado, aplicarlo a la nueva fila
+        if (lastSelectedMuscleId) {
+            // Encontrar el selector de Grupo Muscular en la fila clonada
+            const muscleSelect = clone.querySelector('select[name="grupo_muscular_id"]');
+            
+            if (muscleSelect) {
+                // Establecer el valor para pre-seleccionar la opción
+                muscleSelect.value = lastSelectedMuscleId;
+            }
+        }
+
+        tbody.appendChild(clone);
+        updateRowNumbers();
+    }
+
+    function remove_row(button) {
+        if (confirm("¿Estás seguro de que quieres eliminar este ejercicio?")) {
+            const row = button.closest('tr');
+            row.remove();
+            updateRowNumbers();
+        }
+    }
+</script>
+{% endblock %}
