@@ -14,6 +14,7 @@ from routines.routes import routines_bp
 from reports.routes import reports_bp
 from decimal import Decimal
 from models import Cliente, Rutina, Asistencia, DetallePago
+import os
 
 
 
@@ -30,7 +31,7 @@ def format_currency_robust(value):
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
-    
+    app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
     app.permanent_session_lifetime = timedelta(minutes=app.config.get("SESSION_IDLE_MINUTES", 10))
     
     # Inicialización de Extensiones
