@@ -1,167 +1,84 @@
 /* =========================================================
-   RESPONSIVE PRO — Desktop + Tablet + Mobile
+   MOBILE LIGHT MODE — Más claro pero mismo estilo
    ========================================================= */
 
-/* ----------- TABLET (1024px hacia abajo) ----------- */
-@media (max-width: 1024px){
-
-  .layout{
-    gap: 18px;
-    padding: 16px;
-  }
-
-  .sidebar{
-    width: 220px;
-  }
-
-  .kpis{
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  h1{
-    font-size: 24px;
-  }
-
-  .container{
-    padding: 20px;
-  }
-}
-
-/* ----------- MOBILE (768px hacia abajo) ----------- */
 @media (max-width: 768px){
 
-  /* Layout vertical */
-  .layout{
-    flex-direction: column;
-    padding: 12px;
-    gap: 20px;
+  :root{
+    /* Fondo más claro en celular */
+    --bg: #14394d;
+    --surface: #17465c;
+    --card: #1b4f66;
+    --card-2: #215a73;
+
+    /* Texto ligeramente más oscuro para mejor lectura */
+    --text: #f2f8fb;
+    --muted: #c6d6df;
+    --muted-2: #a8bdc9;
+
+    /* Sombras más suaves */
+    --shadow-1: 0 4px 10px rgba(0,0,0,0.25);
+    --shadow-2: 0 6px 18px rgba(0,0,0,0.3);
   }
 
-  /* Sidebar tipo menú horizontal */
-  .sidebar{
-    width: 100%;
-    display: flex;
-    gap: 8px;
-    overflow-x: auto;
-    padding: 10px;
-    border-radius: 12px;
+  body{
+    background:
+      radial-gradient(700px 400px at 10% 10%, rgba(40,90,120,0.15), transparent 50%),
+      linear-gradient(180deg, var(--bg) 0%, #102f40 100%);
   }
 
-  .sidebar::-webkit-scrollbar{
-    height: 6px;
-  }
-
-  .sidebar::-webkit-scrollbar-thumb{
-    background: rgba(255,255,255,0.15);
-    border-radius: 10px;
-  }
-
-  .sidebar-link{
-    flex: 0 0 auto;
-    font-size: 13px;
-    padding: 8px 12px;
-  }
-
-  .sidebar-link .icon{
-    width: 28px;
-    height: 28px;
-  }
-
-  /* Header */
+  /* Header más claro */
   .header{
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-    padding: 12px 14px;
+    background: rgba(255,255,255,0.03);
+    box-shadow: var(--shadow-1);
   }
 
-  .brand{
-    font-size: 16px;
-  }
-
-  .user-badge{
-    font-size: 13px;
-    padding: 6px 10px;
-  }
-
-  /* Contenido */
-  .container{
-    padding: 14px;
-  }
-
-  .card{
-    padding: 16px;
-  }
-
-  h1{
-    font-size: 20px;
-  }
-
-  h2{
-    font-size: 17px;
-  }
-
-  p{
-    font-size: 14px;
-  }
-
-  /* Formularios */
-  .form-row{
-    grid-template-columns: 1fr;
-  }
-
-  input, select, textarea{
-    font-size: 16px; /* evita zoom automático en iPhone */
-  }
-
-  /* Botones full width */
-  .btn{
-    width: 100%;
-    padding: 12px;
-  }
-
-  /* Tablas scrollables */
-  .table{
-    display: block;
-    overflow-x: auto;
-    white-space: nowrap;
-    border-radius: 12px;
-  }
-
-  .table thead th,
-  .table tbody td{
-    padding: 12px;
-    font-size: 13px;
-  }
-
-  /* KPIs en columna */
-  .kpis{
-    grid-template-columns: 1fr;
-  }
-
-  /* Login */
-  .auth-card{
-    width: 100%;
-    padding: 18px;
-  }
-}
-
-/* ----------- EXTRA SMALL (480px hacia abajo) ----------- */
-@media (max-width: 480px){
-
-  h1{
-    font-size: 18px;
+  /* Sidebar más limpio */
+  .sidebar{
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.05);
   }
 
   .sidebar-link{
-    font-size: 12px;
+    background: rgba(255,255,255,0.02);
   }
 
-  .btn{
-    font-size: 13px;
+  .sidebar-link.active{
+    background: rgba(255,255,255,0.06);
   }
 
+  /* Cards más claras */
   .card{
-    padding: 14px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+    border: 1px solid rgba(255,255,255,0.06);
   }
+
+  /* Inputs más claros */
+  input, select, textarea{
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+
+  input:focus, textarea:focus, select:focus{
+    box-shadow: 0 0 0 4px rgba(58,107,148,0.15);
+  }
+
+  /* Botones más suaves */
+  .btn.primary{
+    background: linear-gradient(180deg, #2a6d92, #1f4b6e);
+  }
+
+  /* Tablas más legibles */
+  .table{
+    background: rgba(255,255,255,0.03);
+  }
+
+  .table thead th{
+    background: rgba(255,255,255,0.04);
+  }
+
+  .table tbody tr:hover{
+    background: rgba(255,255,255,0.05);
+  }
+
 }
