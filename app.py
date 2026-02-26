@@ -44,7 +44,25 @@ def create_app():
     db.init_app(app)
     with app.app_context():
         db.create_all()
-        print("Tablas creadas en Railway")
+
+        if Rol.query.count() == 0:
+            db.session.add(Rol(ID_rol=1, nombre_rol="ADMIN", descripcion="Administrador"))
+            db.session.add(Rol(ID_rol=2, nombre_rol="PERSONAL", descripcion="Personal de sala"))
+            db.session.commit()
+
+        if not Funcionario.query.filter_by(usuario="admin").first():
+            admin = Funcionario(
+                ID_funcionario=1,
+                nombre="Admin",
+                apellido="Principal",
+                cedula="0001",
+                usuario="admin",
+                ID_rol=1,
+                activo=True
+            )
+            admin.set_password("admin123")
+            db.session.add(admin)
+            db.session.commit()
     csrf.init_app(app)
     login_manager.init_app(app)
 
