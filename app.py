@@ -42,6 +42,9 @@ def create_app():
 
     # Inicializar extensiones
     db.init_app(app)
+    with app.app_context():
+        db.create_all()
+        print("Tablas creadas en Railway")
     csrf.init_app(app)
     login_manager.init_app(app)
 
