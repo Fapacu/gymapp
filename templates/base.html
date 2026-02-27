@@ -13,24 +13,24 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
 </head>
 <script>
-const toggleBtn = document.getElementById("menuToggle");
-const sidebar = document.querySelector(".sidebar");
+  const toggleBtn = document.getElementById("menuToggle");
+  const sidebar = document.querySelector(".sidebar");
 
-// Crear overlay dinámicamente
-const overlay = document.createElement("div");
-overlay.classList.add("overlay");
-document.body.appendChild(overlay);
+  // Crear overlay dinámicamente
+  const overlay = document.createElement("div");
+  overlay.classList.add("overlay");
+  document.body.appendChild(overlay);
 
-toggleBtn.addEventListener("click", () => {
-    sidebar.classList.toggle("open");
-    overlay.classList.toggle("show");
-});
+  toggleBtn.addEventListener("click", () => {
+      sidebar.classList.toggle("open");
+      overlay.classList.toggle("show");
+  });
 
-// Cerrar al tocar fuera
-overlay.addEventListener("click", () => {
-    sidebar.classList.remove("open");
-    overlay.classList.remove("show");
-});
+  // Cerrar al tocar fuera
+  overlay.addEventListener("click", () => {
+      sidebar.classList.remove("open");
+      overlay.classList.remove("show");
+  });
 </script>
 
 <body>
