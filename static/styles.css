@@ -433,19 +433,37 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
     display:flex;
   }
 
+  .layout{
+    flex-direction:column;
+  }
+
   .sidebar{
     position:fixed;
     top:0;
     left:-260px;
     height:100vh;
     width:260px;
-    display:block;         /* 👈 vertical */
+
+    display:flex;               /* 👈 flex vertical */
+    flex-direction:column;      /* 👈 esto lo hace vertical */
+    gap:6px;
+
+    padding:20px 16px;
     overflow-y:auto;
+    background:var(--surface);
     transition:0.3s ease;
+    z-index:250;
   }
 
   .sidebar.open{
     left:0;
+  }
+
+  .sidebar-link{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    width:100%;
   }
 
   /* Overlay */
@@ -464,48 +482,4 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
     opacity:1;
     pointer-events:all;
   }
-}
-
-/* ===== Iconos Animados ===== */
-.sidebar-link{
-  position:relative;
-  overflow:hidden;
-  transition:all 0.25s ease;
-}
-
-.sidebar-link .icon{
-  transition:all 0.3s ease;
-}
-
-.sidebar-link:hover .icon{
-  transform:scale(1.15) rotate(6deg);
-  background:rgba(255,255,255,0.06);
-}
-
-.sidebar-link:hover{
-  transform:translateX(8px);
-}
-
-/* Active elegante */
-.sidebar-link.active{
-  background:linear-gradient(90deg, rgba(31,75,110,0.20), rgba(31,75,110,0.05));
-}
-
-.sidebar-link.active .icon{
-  transform:scale(1.1);
-  background:rgba(31,75,110,0.25);
-}
-
-/* Ripple effect */
-.sidebar-link::after{
-  content:"";
-  position:absolute;
-  inset:0;
-  background:radial-gradient(circle at center, rgba(255,255,255,0.15), transparent 70%);
-  opacity:0;
-  transition:opacity 0.3s ease;
-}
-
-.sidebar-link:active::after{
-  opacity:1;
 }
