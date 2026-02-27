@@ -393,61 +393,121 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 
 
 /* =========================================================
-   SIDEBAR TOGGLE RESPONSIVE
+   ANIMATED SIDEBAR MENU — Premium
    ========================================================= */
 
-/* Botón hamburguesa */
+/* ===== Botón Hamburguesa Animado ===== */
 .menu-toggle{
   display:none;
+  flex-direction:column;
+  justify-content:center;
+  gap:5px;
   background:none;
   border:none;
-  color:var(--text);
-  font-size:24px;
   cursor:pointer;
+  z-index:300;
 }
 
-/* Mobile behavior */
-@media (max-width: 768px){
+.menu-toggle span{
+  width:24px;
+  height:2px;
+  background:var(--text);
+  transition:0.3s ease;
+}
+
+/* Animación a X */
+.menu-toggle.active span:nth-child(1){
+  transform:rotate(45deg) translate(5px,5px);
+}
+.menu-toggle.active span:nth-child(2){
+  opacity:0;
+}
+.menu-toggle.active span:nth-child(3){
+  transform:rotate(-45deg) translate(5px,-5px);
+}
+
+/* ===== Sidebar Mobile ===== */
+@media (max-width:768px){
 
   .menu-toggle{
-    display:block;
-  }
-
-  .layout{
-    position:relative;
+    display:flex;
   }
 
   .sidebar{
     position:fixed;
-    left:-280px;
     top:0;
+    left:-280px;
     height:100vh;
     width:260px;
-    z-index:200;
-    transition:left 0.3s ease;
+    padding-top:80px;
     background:var(--surface);
+    transition:all 0.35s cubic-bezier(.2,.9,.3,1);
+    z-index:250;
+    box-shadow: 8px 0 30px rgba(0,0,0,0.4);
   }
 
   .sidebar.open{
     left:0;
   }
 
-  /* Overlay oscuro */
+  /* Overlay */
   .overlay{
     position:fixed;
     inset:0;
-    background:rgba(0,0,0,0.4);
-    z-index:150;
-    display:none;
+    background:rgba(0,0,0,0.45);
+    backdrop-filter:blur(2px);
+    opacity:0;
+    pointer-events:none;
+    transition:0.3s ease;
+    z-index:200;
   }
 
   .overlay.show{
-    display:block;
+    opacity:1;
+    pointer-events:all;
   }
+}
 
-  /* Evitar que el contenido se mueva */
-  .content{
-    padding-top:10px;
-  }
+/* ===== Iconos Animados ===== */
+.sidebar-link{
+  position:relative;
+  overflow:hidden;
+  transition:all 0.25s ease;
+}
 
+.sidebar-link .icon{
+  transition:all 0.3s ease;
+}
+
+.sidebar-link:hover .icon{
+  transform:scale(1.15) rotate(6deg);
+  background:rgba(255,255,255,0.06);
+}
+
+.sidebar-link:hover{
+  transform:translateX(8px);
+}
+
+/* Active elegante */
+.sidebar-link.active{
+  background:linear-gradient(90deg, rgba(31,75,110,0.20), rgba(31,75,110,0.05));
+}
+
+.sidebar-link.active .icon{
+  transform:scale(1.1);
+  background:rgba(31,75,110,0.25);
+}
+
+/* Ripple effect */
+.sidebar-link::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:radial-gradient(circle at center, rgba(255,255,255,0.15), transparent 70%);
+  opacity:0;
+  transition:opacity 0.3s ease;
+}
+
+.sidebar-link:active::after{
+  opacity:1;
 }
