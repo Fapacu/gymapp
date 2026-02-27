@@ -427,24 +427,26 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 }
 
 /* ===== Sidebar Mobile ===== */
-@media (max-width:768px){
+@media (max-width:900px){
 
-  .menu-toggle{
-    display:flex;
+  .layout{
+    flex-direction:column;
+    padding:14px;
   }
 
   .sidebar{
-    position:fixed;
-    top:0;
-    left:-280px;
-    height:100vh;
-    width:260px;
-    padding-top:80px;
-    background:var(--surface);
-    transition:all 0.35s cubic-bezier(.2,.9,.3,1);
-    z-index:250;
-    box-shadow: 8px 0 30px rgba(0,0,0,0.4);
+    width:100%;
+    display:block;          /* 👈 ya no flex */
+    padding:16px;
+    overflow-y:auto;        /* scroll vertical */
+    max-height:80vh;
   }
+
+  .sidebar-link{
+    display:flex;
+    width:100%;
+  }
+
 
   .sidebar.open{
     left:0;
