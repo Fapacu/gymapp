@@ -12,6 +12,27 @@
 
   <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
 </head>
+<script>
+const toggleBtn = document.getElementById("menuToggle");
+const sidebar = document.querySelector(".sidebar");
+
+// Crear overlay dinámicamente
+const overlay = document.createElement("div");
+overlay.classList.add("overlay");
+document.body.appendChild(overlay);
+
+toggleBtn.addEventListener("click", () => {
+    sidebar.classList.toggle("open");
+    overlay.classList.toggle("show");
+});
+
+// Cerrar al tocar fuera
+overlay.addEventListener("click", () => {
+    sidebar.classList.remove("open");
+    overlay.classList.remove("show");
+});
+</script>
+
 <body>
   
   <header class="header">
@@ -32,7 +53,9 @@
             <span class="user-role">{{ current_user.rol.nombre_rol if current_user.rol else '' }}</span>
           </div>
         </div>
-        
+        <button class="menu-toggle" id="menuToggle">
+            ☰
+        </button>
         <form action="{{ url_for('auth.logout') }}" method="post">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
           <button type="submit" class="btn">Salir</button>

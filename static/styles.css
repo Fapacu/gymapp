@@ -390,3 +390,64 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
     color: rgb(255, 249, 249);
     border: 1px solid rgb(0, 0, 0);
 }
+
+
+/* =========================================================
+   SIDEBAR TOGGLE RESPONSIVE
+   ========================================================= */
+
+/* Botón hamburguesa */
+.menu-toggle{
+  display:none;
+  background:none;
+  border:none;
+  color:var(--text);
+  font-size:24px;
+  cursor:pointer;
+}
+
+/* Mobile behavior */
+@media (max-width: 768px){
+
+  .menu-toggle{
+    display:block;
+  }
+
+  .layout{
+    position:relative;
+  }
+
+  .sidebar{
+    position:fixed;
+    left:-280px;
+    top:0;
+    height:100vh;
+    width:260px;
+    z-index:200;
+    transition:left 0.3s ease;
+    background:var(--surface);
+  }
+
+  .sidebar.open{
+    left:0;
+  }
+
+  /* Overlay oscuro */
+  .overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.4);
+    z-index:150;
+    display:none;
+  }
+
+  .overlay.show{
+    display:block;
+  }
+
+  /* Evitar que el contenido se mueva */
+  .content{
+    padding-top:10px;
+  }
+
+}
