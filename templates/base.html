@@ -4,210 +4,187 @@
   <meta charset="utf-8">
   <title>{% block title %}Gimnasio Control{% endblock %}</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+
   <link href="{{ url_for('static', filename='styles.css') }}" rel="stylesheet">
-  
+
   {% if current_user.is_authenticated %}
-  <meta name="csrf-token" content="{{ csrf_token() }}"> 
+  <meta name="csrf-token" content="{{ csrf_token() }}">
   {% endif %}
 
   <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
 </head>
-<script>
-  const toggleBtn = document.getElementById("menuToggle");
-  const sidebar = document.querySelector(".sidebar");
-
-  // Crear overlay dinámicamente
-  const overlay = document.createElement("div");
-  overlay.classList.add("overlay");
-  document.body.appendChild(overlay);
-
-  toggleBtn.addEventListener("click", () => {
-      sidebar.classList.toggle("open");
-      overlay.classList.toggle("show");
-  });
-
-  // Cerrar al tocar fuera
-  overlay.addEventListener("click", () => {
-      sidebar.classList.remove("open");
-      overlay.classList.remove("show");
-  });
-</script>
 
 <body>
-  
-  <header class="header">
-    <div class="brand">
-      <div class="brand-logo">GC</div>
-      <div class="brand-text">
-        <b>Gimnasio Control</b>
-        <small>Panel</small>
-      </div>
+
+<!-- Overlay móvil -->
+<div class="overlay" id="overlay"></div>
+
+<header class="header">
+
+  <!-- Botón hamburguesa -->
+  <button class="menu-toggle" id="menuToggle">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+
+  <div class="brand">
+    <div class="brand-logo">GC</div>
+    <div class="brand-text">
+      <b>Gimnasio Control</b>
+      <small>Panel</small>
     </div>
-
-    <div class="top-actions">
-      {% if current_user.is_authenticated %}
-        <div class="user-badge">
-          <div class="avatar">{{ (current_user.nombre[:1] + current_user.apellido[:1]).upper() if current_user.nombre and current_user.apellido else 'US' }}</div>
-          <div class="user-meta">
-            <span class="user-name">{{ current_user.nombre }} {{ current_user.apellido }}</span>
-            <span class="user-role">{{ current_user.rol.nombre_rol if current_user.rol else '' }}</span>
-          </div>
-        </div>
-        <button class="menu-toggle" id="menuToggle">
-            ☰
-        </button>
-        <form action="{{ url_for('auth.logout') }}" method="post">
-          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-          <button type="submit" class="btn">Salir</button>
-        </form>
-      {% endif %}
-    </div>
-  </header>
-
-  <div class="layout">
-    
-    {% if current_user.is_authenticated %}
-    <aside class="sidebar">
-      
-      <div class="sidebar-section">
-        <a class="sidebar-link {{ 'active' if request.endpoint == 'dashboard' else '' }}" href="{{ url_for('dashboard') }}">
-          <span class="ico">🏠</span> Inicio
-        </a>
-      </div>
-
-      <div class="sidebar-section">
-        <div class="sidebar-title">Clientes</div>
-        <a class="sidebar-link {{ 'active' if request.endpoint and request.endpoint.startswith('clients.list_clients') else '' }}" href="{{ url_for('clients.list_clients') }}"><span class="ico">👥</span> Listado</a>
-        <a class="sidebar-link {{ 'active' if request.endpoint and request.endpoint.startswith('clients.new_client') else '' }}" href="{{ url_for('clients.new_client') }}"><span class="ico">➕</span> Nuevo</a>
-      </div>
-
-      <div class="sidebar-section">
-        <div class="sidebar-title">Pagos / Suscripciones</div>
-        <a class="sidebar-link {{ 'active' if request.endpoint and request.endpoint.startswith('payments.list_payments') else '' }}" href="{{ url_for('payments.list_payments') }}"><span class="ico">💳</span> Pagos</a>
-        <a class="sidebar-link {{ 'active' if request.endpoint and request.endpoint.startswith('payments.new_payment') else '' }}" href="{{ url_for('payments.new_payment') }}"><span class="ico">🧾</span> Registrar pago</a>
-    
-        <a class="sidebar-link {{ 'active' if request.endpoint and request.endpoint.startswith('payments.list_pending') else '' }}" href="{{ url_for('payments.list_pending') }}"><span class="ico">🚨</span> Pendientes</a>
-      </div>
-
-      <div class="sidebar-section">
-        <div class="sidebar-title">Asistencias</div>
-        <a class="sidebar-link {{ 'active' if request.endpoint and request.endpoint.startswith('attendance.list_attendance') else '' }}" href="{{ url_for('attendance.list_attendance') }}"><span class="ico">📅</span> Listado</a>
-        <a class="sidebar-link {{ 'active' if request.endpoint and request.endpoint.startswith('attendance.new_attendance') else '' }}" href="{{ url_for('attendance.new_attendance') }}"><span class="ico">✍️</span> Registrar</a>
-      
-        <a class="sidebar-link {{ 'active' if request.endpoint and request.endpoint.startswith('reports.attendance_frequency_report') else '' }}" href="{{ url_for('reports.attendance_frequency_report') }}"><span class="ico">📈</span> Frecuencia</a>
-      </div>
-
-      <div class="sidebar-section">
-        <div class="sidebar-title">Rutinas</div>
-        <a class="sidebar-link {{ 'active' if request.endpoint and request.endpoint.startswith('routines.list_routines') else '' }}" href="{{ url_for('routines.list_routines') }}"><span class="ico">🏋️</span> Listado</a>
-        <a class="sidebar-link {{ 'active' if request.endpoint and request.endpoint.startswith('routines.new_routine') else '' }}" href="{{ url_for('routines.new_routine') }}"><span class="ico">✨</span> Nueva</a>
-        <a class="sidebar-link {{ 'active' if request.endpoint and request.endpoint.startswith('routines.assign_routine_form') else '' }}" href="{{ url_for('routines.assign_routine_form') }}"><span class="ico">📌</span> Asignar</a>
-      </div>
-
-      <div class="sidebar-section">
-        <div class="sidebar-title">Reportes</div>
-        <a class="sidebar-link {{ 'active' if request.endpoint and request.endpoint.startswith('reports.central') else '' }}" href="{{ url_for('reports.central') }}"><span class="ico">📊</span> Central</a>
-      </div>
-
-      {% if current_user.rol and current_user.rol.nombre_rol == 'ADMIN' %}
-    <div class="sidebar-section">
-        <div class="sidebar-title">Administración</div>
-        <a class="sidebar-link {{ 'active' if request.endpoint and request.endpoint.startswith('auth.users_list') else '' }}" href="{{ url_for('auth.users_list') }}"><span class="ico">👤</span> Funcionarios</a>
-        
-        <a class="sidebar-link {{ 'active' if request.endpoint == 'reports.auditoria_log' else '' }}" 
-          href="{{ url_for('reports.auditoria_log') }}">
-          <span class="ico">📋</span> Log Auditoría
-        </a>
-    </div>
-    {% endif %}
-    </aside>
-    {% endif %}
-
-    <main class="content">
-      
-      {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-          <div class="alerts">
-            {% for cat, msg in messages %}
-              <div class="alert {{ cat }}">
-                <span class="dot"></span>
-                <div>{{ msg }}</div>
-              </div>
-            {% endfor %}
-          </div>
-        {% endif %}
-      {% endwith %}
-      {% block content %}{% endblock %}
-
-    </main>
   </div>
-  
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
 
-  {% block extra_scripts %}{% endblock %} {% if current_user.is_authenticated %}
-  <script>
-    // RNF6: Cierre automático de sesión después de 10 minutos de inactividad
-    const INACTIVITY_LIMIT = 10 * 60 * 1000; // 10 minutos en milisegundos
-    let timeout;
-    const logoutUrl = "{{ url_for('auth.logout') }}";
-    
-    // El token CSRF se obtiene de la metaetiqueta que añadimos arriba
-    const csrfTokenElement = document.querySelector('meta[name="csrf-token"]');
-    const csrfToken = csrfTokenElement ? csrfTokenElement.content : null;
+  <div class="top-actions">
+    {% if current_user.is_authenticated %}
+      <div class="user-badge">
+        <div class="avatar">
+          {{ (current_user.nombre[:1] + current_user.apellido[:1]).upper() if current_user.nombre and current_user.apellido else 'US' }}
+        </div>
+        <div class="user-meta">
+          <span class="user-name">{{ current_user.nombre }} {{ current_user.apellido }}</span>
+          <span class="user-role">{{ current_user.rol.nombre_rol if current_user.rol else '' }}</span>
+        </div>
+      </div>
 
-    if (csrfToken) {
+      <form action="{{ url_for('auth.logout') }}" method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="btn">Salir</button>
+      </form>
+    {% endif %}
+  </div>
 
-        function logoutUser() {
-            // Detiene el temporizador final
-            clearTimeout(timeout);
-            
-            // Envía una solicitud POST de cierre de sesión (necesita CSRF)
-            fetch(logoutUrl, {
-                method: 'POST',
-                headers: {
-                    // El token CSRF puede ir en el cuerpo o en el header, este es el más común.
-                    'X-CSRFToken': csrfToken,
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                // Aseguramos que el token también vaya en el cuerpo del formulario (por si acaso)
-                body: `csrf_token=${encodeURIComponent(csrfToken)}` 
-            }).then(response => {
-                // Si la sesión se cierra con éxito, redirige
-                if (response.ok || response.redirected) {
-                    alert("Sesión cerrada automáticamente por inactividad (10 minutos).");
-                    // Redirige usando la URL final (login)
-                    window.location.href = response.url || "{{ url_for('auth.login') }}";
-                } else {
-                    console.error("Fallo al cerrar sesión automáticamente (Código:", response.status, ")");
-                }
-            }).catch(error => {
-                console.error("Error de red al intentar cerrar sesión:", error);
-            });
-        }
+</header>
 
-        function resetTimer() {
-            clearTimeout(timeout);
-            timeout = setTimeout(logoutUser, INACTIVITY_LIMIT);
-            // console.log("Temporizador reiniciado."); // Descomentar para debug
-        }
+<div class="layout">
 
-        // Eventos que reinician el temporizador
-        const activityEvents = [
-            'mousemove', 'mousedown', 'keydown', 'scroll', 'touchstart'
-        ];
+  {% if current_user.is_authenticated %}
+  <aside class="sidebar">
 
-        activityEvents.forEach(eventName => {
-            // Se añaden los listeners
-            document.addEventListener(eventName, resetTimer, true);
-        });
+    <!-- Inicio -->
+    <a class="sidebar-link {{ 'active' if request.endpoint == 'dashboard' else '' }}"
+       href="{{ url_for('dashboard') }}">
+       <div class="icon">🏠</div>
+       <span>Inicio</span>
+    </a>
 
-        // Inicializar el temporizador al cargar la página
-        resetTimer();
-    } else {
-        console.error("CSRF Token no encontrado. La función de auto-logout no funcionará.");
-    }
-  </script>
+    <!-- Clientes -->
+    <div class="sidebar-title">Clientes</div>
+    <a class="sidebar-link {{ 'active' if request.endpoint and request.endpoint.startswith('clients.list_clients') else '' }}"
+       href="{{ url_for('clients.list_clients') }}">
+       <div class="icon">👥</div>
+       <span>Listado</span>
+    </a>
+
+    <a class="sidebar-link {{ 'active' if request.endpoint and request.endpoint.startswith('clients.new_client') else '' }}"
+       href="{{ url_for('clients.new_client') }}">
+       <div class="icon">➕</div>
+       <span>Nuevo</span>
+    </a>
+
+    <!-- Pagos -->
+    <div class="sidebar-title">Pagos</div>
+    <a class="sidebar-link {{ 'active' if request.endpoint and request.endpoint.startswith('payments.list_payments') else '' }}"
+       href="{{ url_for('payments.list_payments') }}">
+       <div class="icon">💳</div>
+       <span>Pagos</span>
+    </a>
+
+    <a class="sidebar-link {{ 'active' if request.endpoint and request.endpoint.startswith('payments.new_payment') else '' }}"
+       href="{{ url_for('payments.new_payment') }}">
+       <div class="icon">🧾</div>
+       <span>Registrar</span>
+    </a>
+
+    <!-- Asistencias -->
+    <div class="sidebar-title">Asistencias</div>
+    <a class="sidebar-link {{ 'active' if request.endpoint and request.endpoint.startswith('attendance.list_attendance') else '' }}"
+       href="{{ url_for('attendance.list_attendance') }}">
+       <div class="icon">📅</div>
+       <span>Listado</span>
+    </a>
+
+    <a class="sidebar-link {{ 'active' if request.endpoint and request.endpoint.startswith('attendance.new_attendance') else '' }}"
+       href="{{ url_for('attendance.new_attendance') }}">
+       <div class="icon">✍️</div>
+       <span>Registrar</span>
+    </a>
+
+    <!-- Rutinas -->
+    <div class="sidebar-title">Rutinas</div>
+    <a class="sidebar-link {{ 'active' if request.endpoint and request.endpoint.startswith('routines.list_routines') else '' }}"
+       href="{{ url_for('routines.list_routines') }}">
+       <div class="icon">🏋️</div>
+       <span>Listado</span>
+    </a>
+
+    <a class="sidebar-link {{ 'active' if request.endpoint and request.endpoint.startswith('routines.new_routine') else '' }}"
+       href="{{ url_for('routines.new_routine') }}">
+       <div class="icon">✨</div>
+       <span>Nueva</span>
+    </a>
+
+    <!-- Reportes -->
+    <div class="sidebar-title">Reportes</div>
+    <a class="sidebar-link {{ 'active' if request.endpoint and request.endpoint.startswith('reports.central') else '' }}"
+       href="{{ url_for('reports.central') }}">
+       <div class="icon">📊</div>
+       <span>Central</span>
+    </a>
+
+    {% if current_user.rol and current_user.rol.nombre_rol == 'ADMIN' %}
+    <div class="sidebar-title">Administración</div>
+
+    <a class="sidebar-link {{ 'active' if request.endpoint and request.endpoint.startswith('auth.users_list') else '' }}"
+       href="{{ url_for('auth.users_list') }}">
+       <div class="icon">👤</div>
+       <span>Funcionarios</span>
+    </a>
+
+    <a class="sidebar-link {{ 'active' if request.endpoint == 'reports.auditoria_log' else '' }}"
+       href="{{ url_for('reports.auditoria_log') }}">
+       <div class="icon">📋</div>
+       <span>Log Auditoría</span>
+    </a>
+    {% endif %}
+
+  </aside>
   {% endif %}
+
+  <main class="content">
+    {% block content %}{% endblock %}
+  </main>
+
+</div>
+
+<!-- JS -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function(){
+
+    const toggleBtn = document.getElementById("menuToggle");
+    const sidebar = document.querySelector(".sidebar");
+    const overlay = document.getElementById("overlay");
+
+    toggleBtn.addEventListener("click", function(){
+        sidebar.classList.toggle("open");
+        overlay.classList.toggle("show");
+        toggleBtn.classList.toggle("active");
+    });
+
+    overlay.addEventListener("click", function(){
+        sidebar.classList.remove("open");
+        overlay.classList.remove("show");
+        toggleBtn.classList.remove("active");
+    });
+
+});
+</script>
+
+{% block extra_scripts %}{% endblock %}
+
 </body>
 </html>
